@@ -13,51 +13,7 @@
 
 angular.module('rzModule', [])
 
-.value('throttle',
-  /**
-   * throttle
-   *
-   * Taken from underscore project
-   *
-   * @param {Function} func
-   * @param {number} wait
-   * @param {ThrottleOptions} options
-   * @returns {Function}
-   */
-function throttle(func, wait, options) {
-  var getTime = (Date.now || function() {
-    return new Date().getTime();
-  });
-  var context, args, result;
-  var timeout = null;
-  var previous = 0;
-  options || (options = {});
-  var later = function() {
-    previous = options.leading === false ? 0 : getTime();
-    timeout = null;
-    result = func.apply(context, args);
-    context = args = null;
-  };
-  return function() {
-    var now = getTime();
-    if (!previous && options.leading === false) previous = now;
-    var remaining = wait - (now - previous);
-    context = this;
-    args = arguments;
-    if (remaining <= 0) {
-      clearTimeout(timeout);
-      timeout = null;
-      previous = now;
-      result = func.apply(context, args);
-      context = args = null;
-    } else if (!timeout && options.trailing !== false) {
-      timeout = setTimeout(later, remaining);
-    }
-    return result;
-  }
-})
-
-.factory('Slider', ['$timeout', '$document', 'throttle', function($timeout, $document, throttle)
+.factory('Slider', ['$timeout', '$document', function($timeout, $document)
 {
   /**
    * Slider
@@ -224,7 +180,7 @@ function throttle(func, wait, options) {
 
       // Watch for changes to the model
 
-      var thrLow = throttle(function()
+      var thrLow = function()
       {
         self.setMinAndMax();
         self.updateLowHandle(self.valueToOffset(self.scope.rzSliderModel));
@@ -234,16 +190,15 @@ function throttle(func, wait, options) {
           self.updateSelectionBar();
           self.updateCmbLabel();
         }
+      };
 
-      }, 350, { leading: false });
-
-      var thrHigh = throttle(function()
+      var thrHigh = function()
       {
         self.setMinAndMax();
         self.updateHighHandle(self.valueToOffset(self.scope.rzSliderHigh));
         self.updateSelectionBar();
         self.updateCmbLabel();
-      }, 350, { leading: false });
+      };
 
       this.scope.$on('rzSliderForceRender', function()
       {
@@ -947,11 +902,4 @@ function throttle(func, wait, options) {
 /**
  * @name Event
  * @property {Array} touches
- */
-
-/**
- * @name ThrottleOptions
- *
- * @property {bool} leading
- * @property {bool} trailing
  */
